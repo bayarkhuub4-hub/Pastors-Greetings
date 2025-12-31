@@ -94,7 +94,7 @@
 
         // Видео дуусахаас 5 секундын өмнө товчлуур гаргах
         vid.ontimeupdate = function() {
-            if (vid.duration > 0 && (vid.duration - vid.currentTime <= 5)) {
+            if (vid.duration > 0 && (vid.duration - vid.currentTime <= 3)) {
                 if (afterVid.style.display !== 'flex') {
                     afterVid.style.display = 'flex';
                     // Хөгжмийг бага зэрэг чангалах (зөөлөн шилжилт)
@@ -141,5 +141,6 @@
 </body>
 
 </html>
+
 
 
