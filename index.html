@@ -8,7 +8,6 @@
     <style>
         :root { 
             --silver: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #e1e8f0 100%);
-            --metallic: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
             --midnight: radial-gradient(circle at center, #1e3c72 0%, #0a192f 100%);
         }
 
@@ -18,7 +17,13 @@
             font-family: 'Montserrat', sans-serif; color: white; 
         }
 
-        /* 1. ПРЕМИУМ ЭХЛЭХ НҮҮР */
+        /* ЦАС - ХАМГИЙН ДЭЭД ТАЛД (Pointer-events: none нь товчлуур дарахад саад болохгүй) */
+        #canvas-snow { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 200; pointer-events: none; 
+        }
+
+        /* 1. ПРЕМИУМ НҮҮР ХУУДАС */
         #initialOverlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: var(--midnight);
@@ -26,7 +31,6 @@
             z-index: 100; text-align: center; 
         }
 
-        /* Зөөлөн гэрэлтсэн манан/aura */
         .divine-aura {
             position: absolute; width: 600px; height: 600px;
             background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%);
@@ -35,33 +39,17 @@
         }
         @keyframes pulseAura { from { opacity: 0.3; transform: scale(0.8); } to { opacity: 0.7; transform: scale(1.2); } }
 
-        /* Нарийн мөнгөлөг хүрээ */
         .premium-frame {
             position: relative; padding: 60px 40px; border: 1px solid rgba(255,255,255,0.1);
             background: rgba(255,255,255,0.02); backdrop-filter: blur(10px);
-            max-width: 90%;
+            max-width: 90%; z-index: 101;
         }
-        .premium-frame::before, .premium-frame::after {
-            content: ''; position: absolute; width: 20px; height: 20px; border: 1px solid rgba(255,255,255,0.5);
-        }
-        .premium-frame::before { top: -5px; left: -5px; border-right: 0; border-bottom: 0; }
-        .premium-frame::after { bottom: -5px; right: -5px; border-left: 0; border-top: 0; }
 
         .title { 
             font-family: 'Cinzel', serif; font-size: 2.5rem; letter-spacing: 8px; margin: 0; 
             background: var(--silver); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            position: relative; font-weight: 700;
+            font-weight: 700;
         }
-
-        /* Мөнгөлөг гялбаа гүйх эффект */
-        .shimmer {
-            position: relative; display: inline-block; overflow: hidden;
-        }
-        .shimmer::after {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: var(--metallic); animation: shimmerAction 4s infinite;
-        }
-        @keyframes shimmerAction { 0% { left: -100%; } 100% { left: 100%; } }
 
         .subtitle { 
             font-size: 0.8rem; letter-spacing: 5px; margin: 25px 0 45px 0; 
@@ -72,12 +60,19 @@
             padding: 18px 50px; background: none; color: #fff; 
             border: 1px solid rgba(255,255,255,0.4); cursor: pointer; 
             font-family: 'Cinzel', serif; letter-spacing: 3px; 
-            font-size: 0.8rem; transition: 0.4s; position: relative;
+            font-size: 0.8rem; transition: 0.4s; position: relative; z-index: 102;
         }
         .premium-btn:hover { background: #fff; color: #000; box-shadow: 0 0 30px rgba(255,255,255,0.3); }
 
         /* ВИДЕО */
-        video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        video { width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0; z-index: 5; }
+
+        /* ВИДЕО ДЭЭРХ ТОВЧЛУУР */
+        #afterVideoContainer { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: none; flex-direction: column; justify-content: center; align-items: center; 
+            z-index: 50; transition: 1s;
+        }
 
         /* ТӨГСГӨЛИЙН GLASS КАРТ */
         #reportOverlay { 
@@ -87,9 +82,9 @@
         }
 
         #reportCard { 
-            background: rgba(255, 255, 255, 0.05); padding: 60px 40px; 
+            background: rgba(255, 255, 255, 0.05); padding: 50px 30px; 
             width: 80%; max-width: 380px; text-align: center; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5); position: relative;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5); z-index: 151;
         }
         
         .amount { 
@@ -97,30 +92,33 @@
             background: var(--silver); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin: 20px 0; letter-spacing: 2px;
         }
-
-        #canvas-snow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
     </style>
 </head>
 <body>
 
+    <!-- ЦАСНЫ ХЭРЭГСЭЛ - ХАМГИЙН ДЭЭД ТАЛД (z-index: 200) -->
     <canvas id="canvas-snow"></canvas>
 
-    <!-- 1. ПРЕМИУМ НҮҮР ХУУДАС -->
+    <!-- 1. НҮҮР ХУУДАС -->
     <div id="initialOverlay">
         <div class="divine-aura"></div>
-        <div class="premium-frame content">
-            <div class="shimmer"><h1 class="title">ҮҮРИЙН ШҮҮДЭР</h1></div>
+        <div class="premium-frame">
+            <h1 class="title">ҮҮРИЙН ШҮҮДЭР</h1>
             <p id="mainSubtitle" class="subtitle">2025 оны Талархалын Захиа</p>
             <button class="premium-btn" onclick="startApp()">Захиаг нээх</button>
         </div>
     </div>
 
+    <!-- Арын хөгжим -->
     <audio id="bgMusic" src="music.mp3" loop></audio>
 
-    <video id="mainVideo" playsinline><source src="video.mp4" type="video/mp4"></video>
+    <!-- Видео -->
+    <video id="mainVideo" playsinline>
+        <source src="video.mp4" type="video/mp4">
+    </video>
 
-    <!-- Видеоны төгсгөл дэх товчлуур -->
-    <div id="afterVideoContainer" style="position:fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:50; transition: 1s;">
+    <!-- Видео дуусахад гарах товчлуур -->
+    <div id="afterVideoContainer">
         <button class="premium-btn" onclick="showReport()">Итгэлийн тайлан харах</button>
     </div>
 
@@ -173,13 +171,16 @@
         }
 
         vid.ontimeupdate = function() {
+            // Бичлэг дуусахаас 3 секундын өмнө товч гаргах
             if (vid.duration > 0 && (vid.duration - vid.currentTime <= 3)) {
                 afterVid.style.display = 'flex';
                 fadeAudio(bgMusic, 0.4); 
             }
         };
 
-        vid.onended = () => { afterVid.style.background = 'rgba(0,0,0,0.85)'; };
+        vid.onended = () => { 
+            afterVid.style.background = 'rgba(0,0,0,0.85)'; 
+        };
 
         function showReport() { document.getElementById('reportOverlay').style.display = 'flex'; }
 
@@ -192,7 +193,7 @@
             }, 50);
         }
 
-        // --- ЦАС ОРОХ АНИМАЦИ ---
+        // --- ЦАС ОРОХ АНИМАЦИ (Canvas Snow) ---
         const canvas = document.getElementById('canvas-snow');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -202,18 +203,24 @@
             constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height - canvas.height;
+                this.y = Math.random() * canvas.height; // Эхлэхэд дэлгэц дүүрэн цастай байна
                 this.size = Math.random() * 2 + 1;
                 this.speed = Math.random() * 0.7 + 0.3;
-                this.opacity = Math.random() * 0.5 + 0.2;
+                this.opacity = Math.random() * 0.5 + 0.3;
             }
-            update() { this.y += this.speed; if (this.y > canvas.height) this.reset(); }
+            update() { 
+                this.y += this.speed; 
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
             draw() {
                 ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-        for (let i = 0; i < 100; i++) particles.push(new Snowflake());
+        for (let i = 0; i < 120; i++) particles.push(new Snowflake());
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
