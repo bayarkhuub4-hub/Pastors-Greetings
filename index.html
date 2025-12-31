@@ -4,144 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Үүрийн Шүүдэр Чуулган - Мэндчилгээ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@100;300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --silver-text: linear-gradient(180deg, #ffffff 0%, #a5a5a5 100%);
-            --glass: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --silver: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #e1e8f0 100%);
+            --metallic: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            --midnight: radial-gradient(circle at center, #1e3c72 0%, #0a192f 100%);
         }
 
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            overflow: hidden; background-color: #050a14; 
+            overflow: hidden; background: #050a14; 
             font-family: 'Montserrat', sans-serif; color: white; 
         }
 
-        /* 1. ЭХЛЭХ НҮҮР */
+        /* 1. ПРЕМИУМ ЭХЛЭХ НҮҮР */
         #initialOverlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: radial-gradient(circle at 50% 50%, #16213e 0%, #050a14 100%); 
+            background: var(--midnight);
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             z-index: 100; text-align: center; 
         }
 
-        #canvas-snow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        /* Зөөлөн гэрэлтсэн манан/aura */
+        .divine-aura {
+            position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%);
+            animation: pulseAura 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes pulseAura { from { opacity: 0.3; transform: scale(0.8); } to { opacity: 0.7; transform: scale(1.2); } }
+
+        /* Нарийн мөнгөлөг хүрээ */
+        .premium-frame {
+            position: relative; padding: 60px 40px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02); backdrop-filter: blur(10px);
+            max-width: 90%;
+        }
+        .premium-frame::before, .premium-frame::after {
+            content: ''; position: absolute; width: 20px; height: 20px; border: 1px solid rgba(255,255,255,0.5);
+        }
+        .premium-frame::before { top: -5px; left: -5px; border-right: 0; border-bottom: 0; }
+        .premium-frame::after { bottom: -5px; right: -5px; border-left: 0; border-top: 0; }
 
         .title { 
-            font-family: 'Cinzel', serif; font-size: 2.8rem; 
-            background: var(--silver-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: 6px; margin: 0; z-index: 10;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
+            font-family: 'Cinzel', serif; font-size: 2.5rem; letter-spacing: 8px; margin: 0; 
+            background: var(--silver); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            position: relative; font-weight: 700;
         }
 
-        .subtitle { font-size: 0.9rem; letter-spacing: 3px; margin: 20px 0 50px 0; color: #b0c4de; opacity: 0.8; z-index: 10; }
-
-        .btn { 
-            padding: 16px 45px; background: rgba(255,255,255,0.05); color: #fff; 
-            border: 1px solid var(--glass-border); cursor: pointer; 
-            font-family: 'Cinzel', serif; letter-spacing: 2px; 
-            transition: 0.5s; border-radius: 0; font-weight: bold; 
-            backdrop-filter: blur(10px); z-index: 10;
+        /* Мөнгөлөг гялбаа гүйх эффект */
+        .shimmer {
+            position: relative; display: inline-block; overflow: hidden;
         }
-        .btn:hover { background: rgba(255,255,255,0.15); border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .shimmer::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: var(--metallic); animation: shimmerAction 4s infinite;
+        }
+        @keyframes shimmerAction { 0% { left: -100%; } 100% { left: 100%; } }
+
+        .subtitle { 
+            font-size: 0.8rem; letter-spacing: 5px; margin: 25px 0 45px 0; 
+            color: #fff; opacity: 0.6; text-transform: uppercase; font-weight: 300;
+        }
+
+        .premium-btn { 
+            padding: 18px 50px; background: none; color: #fff; 
+            border: 1px solid rgba(255,255,255,0.4); cursor: pointer; 
+            font-family: 'Cinzel', serif; letter-spacing: 3px; 
+            font-size: 0.8rem; transition: 0.4s; position: relative;
+        }
+        .premium-btn:hover { background: #fff; color: #000; box-shadow: 0 0 30px rgba(255,255,255,0.3); }
 
         /* ВИДЕО */
-        video { width: 100%; height: 100%; object-fit: cover; display: none; position: relative; z-index: 5; }
+        video { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* ТӨГСГӨЛИЙН ДАВХАРГА (Видео дээрх) */
-        #afterVideoContainer { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            display: none; flex-direction: column; justify-content: center; align-items: center; 
-            background: rgba(0, 0, 0, 0.3); z-index: 50; 
-        }
-
-        /* 2. ТӨГСГӨЛИЙН КАРТ (CRYSTAL GLASS MODAL) */
+        /* ТӨГСГӨЛИЙН GLASS КАРТ */
         #reportOverlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             display: none; flex-direction: column; justify-content: center; align-items: center; 
-            background: rgba(5, 10, 20, 0.6); z-index: 150; 
-            backdrop-filter: blur(20px); /* Шил шиг тунгалаг болгох гол код */
+            background: rgba(0, 5, 15, 0.7); z-index: 150; backdrop-filter: blur(25px); 
         }
 
         #reportCard { 
-            background: var(--glass); 
-            padding: 60px 30px; 
-            width: 85%; max-width: 380px; text-align: center; 
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
-            position: relative; animation: crystalFade 1.2s ease-out;
-            color: white;
+            background: rgba(255, 255, 255, 0.05); padding: 60px 40px; 
+            width: 80%; max-width: 380px; text-align: center; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5); position: relative;
         }
-        @keyframes crystalFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .crystal-icon { font-size: 24px; color: #fff; margin-bottom: 20px; opacity: 0.6; }
-
+        
         .amount { 
-            font-size: 2.5rem; font-weight: 700; 
-            background: var(--silver-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 2.8rem; font-weight: 200; 
+            background: var(--silver); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             margin: 20px 0; letter-spacing: 2px;
         }
 
-        .verse { font-style: italic; font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 35px; line-height: 1.8; border-top: 1px solid var(--glass-border); padding-top: 25px; }
-        
-        #closeBtn { 
-            margin-top: 40px; background: transparent; border: 1px solid var(--glass-border); 
-            padding: 10px 30px; cursor: pointer; color: rgba(255,255,255,0.5); font-size: 0.7rem; 
-            letter-spacing: 2px; transition: 0.3s;
-        }
-        #closeBtn:hover { color: #fff; border-color: #fff; }
+        #canvas-snow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <!-- Арын цас орох талбай (Бүх хугацаанд харагдана) -->
     <canvas id="canvas-snow"></canvas>
 
-    <!-- 1. ЭХЛЭХ НҮҮР -->
+    <!-- 1. ПРЕМИУМ НҮҮР ХУУДАС -->
     <div id="initialOverlay">
-        <div class="content">
-            <h1 class="title">ҮҮРИЙН ШҮҮДЭР</h1>
-            <p id="mainSubtitle" class="subtitle">2025 ОНЫ ТАЛАРХАЛЫН ЗАХИА</p>
-            <button class="btn" onclick="startApp()">Захиаг нээх ✉️</button>
+        <div class="divine-aura"></div>
+        <div class="premium-frame content">
+            <div class="shimmer"><h1 class="title">ҮҮРИЙН ШҮҮДЭР</h1></div>
+            <p id="mainSubtitle" class="subtitle">2025 оны Талархалын Захиа</p>
+            <button class="premium-btn" onclick="startApp()">Захиаг нээх</button>
         </div>
     </div>
 
-    <!-- Арын хөгжим -->
     <audio id="bgMusic" src="music.mp3" loop></audio>
 
-    <!-- Видео -->
-    <video id="mainVideo" playsinline>
-        <source src="video.mp4" type="video/mp4">
-    </video>
+    <video id="mainVideo" playsinline><source src="video.mp4" type="video/mp4"></video>
 
-    <!-- Видео дээрх товчлуур -->
-    <div id="afterVideoContainer">
-        <button class="btn" onclick="showReport()">Итгэлийн тайлан харах</button>
+    <!-- Видеоны төгсгөл дэх товчлуур -->
+    <div id="afterVideoContainer" style="position:fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:50; transition: 1s;">
+        <button class="premium-btn" onclick="showReport()">Итгэлийн тайлан харах</button>
     </div>
 
-    <!-- ТАНСАГ ТУНГЛАГ КАРТ -->
+    <!-- ТАНСАГ GLASS MODAL -->
     <div id="reportOverlay">
         <div id="reportCard">
-            <div class="crystal-icon">✦</div>
-            <p id="topLabel" style="text-transform: uppercase; font-size: 0.7rem; letter-spacing: 3px; color: rgba(255,255,255,0.5);">Эрхэм хүндэт</p>
-            <div id="userName" style="font-family: 'Cinzel'; font-size: 1.6rem; margin: 10px 0; font-weight: bold; letter-spacing: 2px;">ИТГЭГЧ ТАНД</div>
+            <p style="text-transform: uppercase; font-size: 0.65rem; letter-spacing: 3px; color: rgba(255,255,255,0.4);">Эрхэм хүндэт</p>
+            <div id="userName" style="font-family: 'Cinzel'; font-size: 1.6rem; margin: 10px 0; font-weight: 700;">ИТГЭГЧ ТАНД</div>
             
             <div id="offeringSection">
-                <p style="font-size: 0.85rem; margin-top: 30px; color: rgba(255,255,255,0.7);">Таны 2025 онд Бурханы хаант улсад өргөсөн итгэлийн өргөл:</p>
+                <p style="font-size: 0.8rem; margin-top: 30px; color: rgba(255,255,255,0.6); font-weight: 200;">Таны 2025 онд Бурханы хаант улсад өргөсөн итгэлийн өргөл:</p>
                 <div id="userAmount" class="amount">0 ₮</div>
             </div>
 
-            <p id="blessingText" style="font-size: 0.9rem; line-height: 1.8; margin-top: 25px; font-weight: 300;">Ирэх онд Бурханы ерөөл таны амьдралд <br>Үүрийн шүүдэр мэт шинэлэг бялхах болтугай.</p>
+            <p id="blessingText" style="font-size: 0.9rem; line-height: 1.8; margin-top: 25px; font-weight: 300; opacity: 0.9;">
+                Ирэх онд Бурханы ерөөл таны амьдралд <br>Үүрийн шүүдэр мэт шинэлэг бялхах болтугай.
+            </p>
             
-            <div class="verse" id="verseText">"Бурхан баяртайгаар өгөгчийг хайрладаг." <br> (2 Коринт 9:7)</div>
+            <div style="font-style: italic; font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px;" id="verseText">
+                "Бурхан баяртайгаар өгөгчийг хайрладаг." <br> (2 Коринт 9:7)
+            </div>
             
-            <button id="closeBtn" onclick="location.reload()">ХААХ</button>
+            <button onclick="location.reload()" style="margin-top: 40px; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:0.7rem; text-decoration:underline;">ХААХ</button>
         </div>
     </div>
 
     <script>
-        // --- 1. URL МЭДЭЭЛЭЛ ---
         const params = new URLSearchParams(window.location.search);
         const name = params.get('n') || "Ах, эгч дүү минь";
         const amount = params.get('a');
@@ -149,8 +155,7 @@
 
         if (!amount || amount === "0") {
             document.getElementById('offeringSection').style.display = 'none';
-            document.getElementById('mainSubtitle').innerText = "2026 ОНЫ ЕРӨӨЛИЙН МЭНДЧИЛГЭЭ";
-            document.getElementById('verseText').innerHTML = '"Эзэн чамайг ерөөж, чамайг сахиж хамгаалах болтугай." <br> (Тооллого 6:24)';
+            document.getElementById('mainSubtitle').innerText = "2026 оны Ерөөлийн Мэндчилгээ";
         } else {
             document.getElementById('userAmount').innerText = amount + " ₮";
         }
@@ -159,7 +164,6 @@
         const bgMusic = document.getElementById('bgMusic');
         const afterVid = document.getElementById('afterVideoContainer');
 
-        // --- 2. ҮЙЛДЛҮҮД ---
         function startApp() {
             document.getElementById('initialOverlay').style.display = 'none';
             vid.style.display = 'block';
@@ -170,20 +174,14 @@
 
         vid.ontimeupdate = function() {
             if (vid.duration > 0 && (vid.duration - vid.currentTime <= 3)) {
-                if (afterVid.style.display !== 'flex') {
-                    afterVid.style.display = 'flex';
-                    fadeAudio(bgMusic, 0.4); 
-                }
+                afterVid.style.display = 'flex';
+                fadeAudio(bgMusic, 0.4); 
             }
         };
 
-        vid.onended = () => {
-            afterVid.style.background = 'rgba(5, 10, 20, 0.5)';
-        };
+        vid.onended = () => { afterVid.style.background = 'rgba(0,0,0,0.85)'; };
 
-        function showReport() {
-            document.getElementById('reportOverlay').style.display = 'flex';
-        }
+        function showReport() { document.getElementById('reportOverlay').style.display = 'flex'; }
 
         function fadeAudio(audio, targetVolume) {
             const step = 0.01;
@@ -194,36 +192,28 @@
             }, 50);
         }
 
-        // --- 3. ЦАС ОРОХ АНИМАЦИ (Canvas Snow) ---
+        // --- ЦАС ОРОХ АНИМАЦИ ---
         const canvas = document.getElementById('canvas-snow');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
-
         class Snowflake {
             constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height - canvas.height;
                 this.size = Math.random() * 2 + 1;
-                this.speed = Math.random() * 0.8 + 0.4;
-                this.velX = Math.random() * 0.4 - 0.2;
+                this.speed = Math.random() * 0.7 + 0.3;
                 this.opacity = Math.random() * 0.5 + 0.2;
             }
-            update() {
-                this.y += this.speed;
-                this.x += this.velX;
-                if (this.y > canvas.height) this.reset();
-            }
+            update() { this.y += this.speed; if (this.y > canvas.height) this.reset(); }
             draw() {
                 ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-        for (let i = 0; i < 120; i++) particles.push(new Snowflake());
+        for (let i = 0; i < 100; i++) particles.push(new Snowflake());
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => { p.update(); p.draw(); });
