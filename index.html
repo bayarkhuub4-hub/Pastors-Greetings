@@ -23,7 +23,6 @@
             z-index: 200; pointer-events: none; 
         }
 
-        /* 1. ЭХЛЭХ НҮҮР */
         #initialOverlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: var(--midnight);
@@ -31,22 +30,13 @@
             z-index: 100; text-align: center; padding: 20px; box-sizing: border-box;
         }
 
-        /* АЧААЛАХ ХЭСЭГ (МЭНДЧИЛГЭЭНИЙ ТЕКСТ) */
-        #loadingOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #050a14;
-            display: none; /* Эхлээд нуух */
-            flex-direction: column; justify-content: center; align-items: center;
-            z-index: 110; text-align: center; padding: 30px; box-sizing: border-box;
+        .divine-aura {
+            position: absolute; width: 150vw; height: 150vw;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 70%);
+            animation: pulseAura 8s ease-in-out infinite alternate;
+            pointer-events: none;
         }
-
-        .loading-text {
-            font-family: 'Cinzel', serif; font-size: 1.1rem; line-height: 1.8;
-            color: #fcf6ba; letter-spacing: 2px; opacity: 0;
-            animation: fadeInOut 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes fadeInOut { from { opacity: 0.4; } to { opacity: 1; } }
+        @keyframes pulseAura { from { opacity: 0.3; transform: scale(0.8); } to { opacity: 0.7; transform: scale(1.1); } }
 
         .premium-frame {
             position: relative; padding: 50px 30px; border: 1px solid rgba(255,255,255,0.1);
@@ -72,6 +62,7 @@
             font-size: 0.8rem; transition: 0.4s; position: relative; z-index: 102;
             width: 100%; max-width: 250px; outline: none; -webkit-tap-highlight-color: transparent;
         }
+        .premium-btn:active { background: #fff; color: #000; }
 
         video { 
             width: 100%; height: 100%; object-fit: cover; 
@@ -92,6 +83,7 @@
         .participation-text {
             color: #fff; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 20px;
             font-family: 'Montserrat', sans-serif; font-weight: 300; opacity: 0.9;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         #reportOverlay { 
@@ -124,8 +116,8 @@
 
     <canvas id="canvas-snow"></canvas>
 
-    <!-- 1. НҮҮР ХУУДАС -->
     <div id="initialOverlay">
+        <div class="divine-aura"></div>
         <div class="premium-frame">
             <h1 class="title">ҮҮРИЙН ШҮҮДЭР</h1>
             <p id="mainSubtitle" class="subtitle">2025 оны Талархалын Захиа</p>
@@ -133,19 +125,11 @@
         </div>
     </div>
 
-    <!-- 2. АЧААЛАХ ХУУДАС (МЭНДЧИЛГЭЭ) -->
-    <div id="loadingOverlay">
-        <div class="loading-text">
-            Үүрийн Шүүдэр чуулганы пастор <br>
-            Б.Баярхүүгийн гэр бүлийн зүгээс <br>
-            мэндчилж байна...
-        </div>
-    </div>
-
     <audio id="bgMusic" src="music.mp3" loop></audio>
     <video id="mainVideo" playsinline webkit-playsinline><source src="video.mp4" type="video/mp4"></video>
 
     <div id="afterVideoContainer">
+        <!-- Текст болон тусдаа товчлуур -->
         <p class="participation-text">Эзэний ажил дахь таны оролцоо</p>
         <button class="premium-btn" onclick="showReport()">ЭНДЭЭС ХАРАХ</button>
     </div>
@@ -154,14 +138,20 @@
         <div id="reportCard">
             <p style="text-transform: uppercase; font-size: 0.6rem; letter-spacing: 2px; color: rgba(255,255,255,0.4);">Эрхэм хүндэт</p>
             <div id="userName" style="font-family: 'Cinzel'; font-size: 1.2rem; margin: 5px 0; font-weight: 700;">ХРИСТ ДОТОРХ ХАЙРТАЙ АХ ДҮҮ МИНЬ</div>
+            
             <div id="offeringSection">
                 <p style="font-size: 0.75rem; margin-top: 25px; color: rgba(255,255,255,0.6); font-weight: 300;">Таны 2025 онд Бурханы хаант улсын төлөөх <br>итгэлийн үйлчлэл, тарьсан үр:</p>
                 <div id="userAmount" class="amount">0 ₮</div>
             </div>
+
             <p id="blessingText" style="font-size: 0.85rem; line-height: 1.7; margin-top: 15px; font-weight: 300; opacity: 0.9;">
                 Ирэх шинэ онд Эзэний ерөөл, амар амгалан таны амьдрал, гэр бүлд Үүрийн Шүүдэр мэт үргэлж шинэлэг байж, бялхах болтугай.
             </p>
-            <div class="verse" id="verseText">"Та нарыг Бурхан бүхий л ерөөлөөр бялхаах чадалтай." <br> (2 Коринт 9:8)</div>
+            
+            <div class="verse" id="verseText">
+                "Та нарыг Бурхан бүхий л ерөөлөөр бялхаах чадалтай." <br> (2 Коринт 9:8)
+            </div>
+            
             <button onclick="location.reload()" style="margin-top: 30px; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size:0.7rem; text-decoration:underline; outline:none;">ХААХ</button>
         </div>
     </div>
@@ -174,6 +164,7 @@
 
         if (!amount || amount === "0") {
             document.getElementById('offeringSection').style.display = 'none';
+            document.getElementById('mainSubtitle').innerText = "2026 оны Ерөөлийн Мэндчилгээ";
         } else {
             document.getElementById('userAmount').innerText = amount + " ₮";
         }
@@ -181,33 +172,13 @@
         const vid = document.getElementById('mainVideo');
         const bgMusic = document.getElementById('bgMusic');
         const afterVid = document.getElementById('afterVideoContainer');
-        const initialOverlay = document.getElementById('initialOverlay');
-        const loadingOverlay = document.getElementById('loadingOverlay');
 
         function startApp() {
-            // Эхлэл хуудсыг нууж, ачаалах мэндчилгээг гаргана
-            initialOverlay.style.display = 'none';
-            loadingOverlay.style.display = 'flex';
-            
-            // Видеог арын планд бэлдэж эхэлнэ
+            document.getElementById('initialOverlay').style.display = 'none';
             vid.style.display = 'block';
-            vid.load(); // Видеог ачаалж эхлэх
-            
-            bgMusic.volume = 0.05;
+            bgMusic.volume = 0.05; 
             bgMusic.play();
-
-            // Видео бэлэн болж, тоглож эхлэх үед ачаалах мэндчилгээг нууна
-            vid.play().then(() => {
-                // Видео бодитоор тоглож эхлэхийг хүлээнэ
-                vid.addEventListener('playing', () => {
-                    loadingOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingOverlay.style.display = 'none';
-                    }, 500);
-                }, { once: true });
-            }).catch(error => {
-                console.log("Видео тоглуулахад алдаа гарлаа:", error);
-            });
+            vid.play();
         }
 
         vid.ontimeupdate = function() {
@@ -230,7 +201,6 @@
             }, 50);
         }
 
-        // Snow Animation
         const canvas = document.getElementById('canvas-snow');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -238,12 +208,25 @@
         window.addEventListener('resize', resize); resize();
         class Snowflake {
             constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-            reset() { this.x = Math.random() * canvas.width; this.y = -10; this.size = Math.random() * 2 + 1; this.speed = Math.random() * 0.6 + 0.3; this.opacity = Math.random() * 0.4 + 0.2; }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = -10;
+                this.size = Math.random() * 2 + 1;
+                this.speed = Math.random() * 0.6 + 0.3;
+                this.opacity = Math.random() * 0.4 + 0.2;
+            }
             update() { this.y += this.speed; if (this.y > canvas.height) this.reset(); }
-            draw() { ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
         }
         for (let i = 0; i < 70; i++) particles.push(new Snowflake());
-        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
         animate();
     </script>
 </body>
