@@ -1,45 +1,133 @@
-<script>
-        // --- 1. URL ПАРАМЕТР УНШИХ ---
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Үүрийн Шүүдэр Чуулган - Мэндчилгээ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --light-gold: #fcf6ba; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Montserrat', sans-serif; color: white; }
+        
+        #initialOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1a150a 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; text-align: center; }
+        #canvas-lights { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        
+        .title { font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--light-gold); letter-spacing: 3px; margin: 0; text-shadow: 0 0 20px rgba(252, 246, 186, 0.4); }
+        .subtitle { font-size: 0.9rem; letter-spacing: 2px; margin: 15px 0 50px 0; opacity: 0.7; font-weight: 200; }
+        
+        .btn { padding: 16px 40px; background: none; color: var(--light-gold); border: 1px solid var(--light-gold); cursor: pointer; font-family: 'Cinzel', serif; letter-spacing: 2px; transition: 0.5s; font-weight: bold; text-transform: uppercase; }
+        .btn:hover { background: rgba(252, 246, 186, 0.1); }
+        
+        video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        
+        #afterVideoContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.4); z-index: 50; animation: fadeIn 1.5s ease; }
+        
+        #reportOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.9); z-index: 150; backdrop-filter: blur(10px); }
+        #reportCard { background: white; color: #333; padding: 50px 30px; width: 85%; max-width: 380px; text-align: center; border-radius: 2px; box-shadow: 0 0 50px rgba(252, 246, 186, 0.2); }
+        .amount { font-size: 2rem; font-weight: 700; color: #b38728; margin: 20px 0; }
+        .verse { font-style: italic; font-size: 0.85rem; color: #777; margin-top: 30px; line-height: 1.6; border-top: 1px solid #eee; padding-top: 20px; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="initialOverlay">
+        <canvas id="canvas-lights"></canvas>
+        <div class="content">
+            <h1 class="title">ҮҮРИЙН ШҮҮДЭР</h1>
+            <p id="mainSubtitle" class="subtitle">2025 ОНЫ ТАЛАРХАЛЫН ЗАХИА</p>
+            <button class="btn" onclick="startApp()">Захиаг нээх ✉️</button>
+        </div>
+    </div>
+
+    <!-- Арын хөгжим -->
+    <audio id="bgMusic" src="music.mp3" loop></audio>
+
+    <video id="mainVideo" playsinline>
+        <source src="video.mp4" type="video/mp4">
+    </video>
+
+    <div id="afterVideoContainer">
+        <button class="btn" onclick="showReport()">Итгэлийн тайлан харах</button>
+    </div>
+
+    <div id="reportOverlay">
+        <div id="reportCard">
+            <p id="topLabel" style="text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; color: #999;">Эрхэм хүндэт</p>
+            <div id="userName" style="font-family: 'Cinzel'; font-size: 1.4rem; margin: 5px 0; color: #222;">ИТГЭГЧ ТАНД</div>
+            <div id="offeringSection">
+                <p style="font-size: 0.9rem; margin-top: 25px;">Таны 2025 онд Бурханы хаант улсад өргөсөн итгэлийн өргөл:</p>
+                <div id="userAmount" class="amount">0 ₮</div>
+            </div>
+            <p id="blessingText" style="font-size: 0.9rem; line-height: 1.6; margin-top: 20px; color: #444;">Ирэх онд Бурханы ерөөл таны амьдралд дүүрэн бялхах болтугай.</p>
+            <div class="verse" id="verseText">"Бурхан баяртайгаар өгөгчийг хайрладаг." <br> (2 Коринт 9:7)</div>
+            <button onclick="location.reload()" style="margin-top: 30px; background: none; border: none; text-decoration: underline; cursor: pointer; color: #999;">ХААХ</button>
+        </div>
+    </div>
+
+    <script>
         const params = new URLSearchParams(window.location.search);
         const name = params.get('n') || "Ах, эгч дүү минь";
-        const amount = params.get('a'); 
+        const amount = params.get('a');
         document.getElementById('userName').innerText = name.toUpperCase();
 
         if (!amount || amount === "0") {
             document.getElementById('offeringSection').style.display = 'none';
-            document.getElementById('mainSubtitle').innerText = "2026 ОНЫ ЕРӨӨЛИЙН МЭНДЧИЛГЭЭ";
-            document.getElementById('topLabel').innerText = "Шинэ оны мэнд";
-            document.getElementById('blessingText').innerText = "Ирэх онд Бурханы амар амгалан, ерөөл таны гэр бүл, амьдралд дүүрэн бялхах болтугай. Бидэнтэй хамт байсанд баярлалаа!";
-            document.getElementById('verseText').innerHTML = '"Эзэн чамайг ерөөж, чамайг сахиж хамгаалах болтугай." <br> (Тооллого 6:24)';
         } else {
             document.getElementById('userAmount').innerText = amount + " ₮";
         }
 
-        // --- 2. ВИДЕО ХЯНАЛТ (5 СЕКУНДЫН ӨМНӨ ГАРГАХ) ---
         const vid = document.getElementById('mainVideo');
+        const bgMusic = document.getElementById('bgMusic');
         const afterVid = document.getElementById('afterVideoContainer');
 
         function startApp() {
             document.getElementById('initialOverlay').style.display = 'none';
             vid.style.display = 'block';
+            
+            // Хөгжмийг эхлүүлэх
+            bgMusic.volume = 0.2; // Видео явах үед арын хөгжим аяархан (20%)
+            bgMusic.play();
             vid.play();
         }
 
-        // Цаг хянах функц
+        // Видео дуусахаас 5 секундын өмнө товчлуур гаргах
         vid.ontimeupdate = function() {
-            // Видеоны үлдэгдэл хугацаа 5 секундээс бага болмогц товчийг гаргана
             if (vid.duration > 0 && (vid.duration - vid.currentTime <= 5)) {
-                afterVid.style.display = 'flex';
+                if (afterVid.style.display !== 'flex') {
+                    afterVid.style.display = 'flex';
+                    // Хөгжмийг бага зэрэг чангалах (зөөлөн шилжилт)
+                    fadeAudio(bgMusic, 0.5); 
+                }
             }
         };
 
-        // Видео бүрэн дуусахад арын дүрсийг бүдгэрүүлж харанхуйлах
         vid.onended = () => {
-            afterVid.style.background = 'rgba(0, 0, 0, 0.95)';
+            // Видео дуусахад арын хөгжим чангарна (50-60%)
+            afterVid.style.background = 'rgba(0,0,0,0.85)';
             afterVid.style.backdropFilter = 'blur(10px)';
         };
 
-        // Бусад эффектүүд (Canvas)
+        function showReport() {
+            document.getElementById('reportOverlay').style.display = 'flex';
+        }
+
+        // Хөгжмийн чанга сулыг зөөлөн өөрчлөх функц
+        function fadeAudio(audio, targetVolume) {
+            const step = 0.01;
+            const interval = 50;
+            const timer = setInterval(() => {
+                if (audio.volume < targetVolume) {
+                    audio.volume = Math.min(targetVolume, audio.volume + step);
+                } else {
+                    audio.volume = Math.max(targetVolume, audio.volume - step);
+                }
+                if (Math.abs(audio.volume - targetVolume) < step) clearInterval(timer);
+            }, interval);
+        }
+
+        // Canvas Effect
         const canvas = document.getElementById('canvas-lights');
         const ctx = canvas.getContext('2d');
         let lights = [];
@@ -50,3 +138,5 @@
         function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); lights.forEach(l => { l.update(); l.draw(); }); requestAnimationFrame(animate); }
         animate();
     </script>
+</body>
+</html>
