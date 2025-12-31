@@ -150,7 +150,7 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        const name = params.get('n') || "Ах, эгч дүү минь";
+        const name = params.get('n') || "Эрхэм итгэлийн анд нөхөр минь";
         const amount = params.get('a');
         document.getElementById('userName').innerText = name.toUpperCase();
 
@@ -168,7 +168,7 @@
         function startApp() {
             document.getElementById('initialOverlay').style.display = 'none';
             vid.style.display = 'block';
-            bgMusic.volume = 0.15; 
+            bgMusic.volume = 0.05; 
             bgMusic.play();
             vid.play();
         }
@@ -223,5 +223,6 @@
     </script>
 </body>
 </html>
+
 
 
